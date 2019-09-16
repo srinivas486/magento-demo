@@ -7,7 +7,7 @@ RUN apt-get -yq update
 #   --allow-remove-essential --allow-change-held-packages \
 #   --allow-change-held-packages --allow-unauthenticated;
 
-RUN apt-get install -yq software-properties-common python-software-properties
+RUN apt-get install -yq software-properties-common python-software-properties 
 RUN LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php
 RUN apt-get update && apt-get install -yq \
     # Install git
@@ -36,6 +36,8 @@ RUN apt-get update && apt-get install -yq \
 #    apt-utils \
     locales \
     curl \
+    mysql-client \
+    mysql* \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # ======= composer =======
@@ -48,14 +50,14 @@ RUN a2enmod rewrite expires
 
 VOLUME /var/www/html/magento2
 # Copy Magento packages
-ADD ./payload/Magento-CE-2.3.2-2019-06-13-03-23-52.tar.gz /var/magento2
+ADD ./docker_payload/Magento-CE-2.3.2-2019-06-13-03-23-52.tar.gz /var/magento2
 
 RUN rm etc/apache2/sites-enabled/000-default.conf
 # Copy Magento Config to Apache sites
-ADD ./payload/magento2.conf /etc/apache2/sites-enabled/
+ADD ./docker_payload/magento2.conf /etc/apache2/sites-enabled/
 
 # Copy PHP configuration
-ADD ./payload/php.ini /etc/php/7.2/apache2/conf.d
+ADD ./docker_payload/php.ini /etc/php/7.2/apache2/conf.d
 
 EXPOSE 80 443
 
@@ -69,7 +71,7 @@ RUN chmod u+x bin/magento
 RUN chmod -R a+w+r var
 RUN chmod -R a+w+r app
 
-ADD ./payload/runner.sh /var/
+ADD ./docker_payload/runner.sh /var/
 RUN chmod +x /var/runner.sh
 
 WORKDIR /var/www/html/magento2

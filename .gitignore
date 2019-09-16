@@ -1,2 +1,3 @@
 *.gz
 .DS_STORE
+/build_k8s

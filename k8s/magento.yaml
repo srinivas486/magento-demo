@@ -2,40 +2,22 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: customer1
+  name: ${CUSTOMER_NAME}
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: magento-customer1-external-svc
   labels:
     app: magento
-    customer: customer1
-  namespace: ingress
-spec:
-  type: ExternalName
-  externalName: magento-svc.customer1.svc.cluster.local
-  ports:
-    - port: 80
-      targetPort: 80
-  selector:
-    app: magento
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: magento
-    customer: customer1
+    customer: ${CUSTOMER_NAME}
   name: magento-svc
-  namespace: customer1
+  namespace: ${CUSTOMER_NAME}
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
   - port: 80
     targetPort: 80
-    nodePort: 30080
     name: magento-ui
   selector:
     app: magento
@@ -45,11 +27,11 @@ kind: Deployment
 metadata:
   labels:
     app: magento
-    customer: customer1
-  name: magento-dep
-  namespace: customer1
+    customer: ${CUSTOMER_NAME}
+  name: magento
+  namespace: ${CUSTOMER_NAME}
 spec:
-  replicas: 1
+  replicas: ${REPLICAS}
   selector:
     matchLabels:
       app: magento
@@ -57,39 +39,41 @@ spec:
     metadata:
       labels: 
         app: magento
-        customer: customer1
+        customer: ${CUSTOMER_NAME}
     spec:
       containers:
-      - image: magento-test
-        imagePullPolicy: Never
+      - image: ${DOCKER_IMAGE_DOMAIN_LOCALHOST}
+        #imagePullPolicy: Never
         name: magento-pod
         env: 
+        - name: BASE_URL
+          value: "http://${CUSTOMER_NAME}.${BASE_DOMAIN}"
         - name: DB_HOST
-          value: "mysql.mysql"
+          value: "${DB_HOST}"
         - name: DB_NAME
-          value: "magento-customer1"
+          value: "${DB_NAME}"
         - name: "DB_USER"
-          value: "root" 
+          value: "${DB_USER}" 
         - name: DB_PASS
-          value: "root" 
+          value: "${DB_PASS}" 
         - name: "ADMIN_FIRST_NAME"
-          value: "admin"
+          value: "${ADMIN_FIRST_NAME}"
         - name: "ADMIN_LAST_NAME"
-          value: "admin"
+          value: "${ADMIN_LAST_NAME}"
         - name: "ADMIN_EMAIL"
-          value: "admin@admin.com"
+          value: "${ADMIN_EMAIL}"
         - name: "ADMIN_USERNAME"
-          value: "admin"
+          value: "${ADMIN_USERNAME}"
         - name: "ADMIN_PASSWORD"
-          value: "admin123"
+          value: "${ADMIN_PASSWORD}"
         - name: "TIMEZONE"
-          value: "Australia/Sydney"
+          value: "${TIMEZONE}"
         - name: "CURRENCY"
-          value: "AUD"
+          value: "${CURRENCY}"
         - name: "LANGUAGE"
-          value: "en_US"
+          value: "${LANGUAGE}"
         - name: "BACKEND_FRONTNAME"
-          value: "admin"
+          value: "${BACKEND_FRONTNAME}"
         volumeMounts:
           - name: magento-storage
             mountPath: /var/www/html/magento2
@@ -102,7 +86,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: magento-pv-claim
-  namespace: customer1
+  namespace: ${CUSTOMER_NAME}
 spec:
   storageClassName: standard-retain
   accessModes:
