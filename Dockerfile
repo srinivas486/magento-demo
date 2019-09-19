@@ -41,7 +41,7 @@ RUN apt-get update && apt-get install -yq \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # ======= composer =======
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN curl -sS https://getcomposer.org/installer | php --install-dir=/usr/local/bin --filename=composer
 
 # Set locales
 RUN locale-gen en_US.UTF-8
@@ -61,7 +61,6 @@ ADD ./docker_payload/php.ini /etc/php/7.2/apache2/conf.d
 
 EXPOSE 80 443
 
-
 WORKDIR /var/magento2
 RUN find var generated vendor pub/static pub/media app/etc -type f -exec chmod g+w {} +
 RUN find var generated vendor pub/static pub/media app/etc -type d -exec chmod g+ws {} +
@@ -74,6 +73,7 @@ RUN chmod -R a+w+r app
 ADD ./docker_payload/runner.sh /var/
 RUN chmod +x /var/runner.sh
 
+VOLUME /var/www/html/magento2
 WORKDIR /var/www/html/magento2
 
 CMD ["/var/runner.sh"]
