@@ -31,6 +31,7 @@ if [ -z "$(ls -A /var/www/html/magento2)" ]; then
    --session-save="db" \
    --use-rewrites=1 >> /var/log/installMagento.log 2>&1
    bin/magento cron:install
+   crontab enable
 else
    echo "Not Empty"
 fi

@@ -63,13 +63,12 @@ deploy: deploy-prerequisites build-k8s ssl-cert push-docker
 		kubectl delete secret magento-web-secret --ignore-not-found
 		kubectl create secret tls magento-web-secret --key $(K8S_BUILD_DIR)/tls.key --cert $(K8S_BUILD_DIR)/tls.crt -n $(CUSTOMER_NAME)
 		kubectl apply -f $(K8S_BUILD_DIR)/ingress.yaml
-		minikube service list
+		kubectl get ingress --namespace $(CUSTOMER_NAME)
 
 .PHONY: deploy-prerequisites
 deploy-prerequisites: build-k8s push-docker
 		kubectl apply -f $(K8S_BUILD_DIR)/storageClass.yaml
 		kubectl apply -f $(K8S_BUILD_DIR)/mysql.yaml
-		minikube service list
 
 .PHONY: ssl-cert
 ssl-cert: 
